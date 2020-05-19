@@ -92,3 +92,99 @@ describe('POST /api/v1/users', () => {
     })
 })
 
+describe('POST /api/v1/auth', () => {
+    it('should log user in', async done => {
+        request
+            .post('/api/v1/auth')
+            .set('Content-Type', 'application/json')
+            .send(JSON.stringify(staticUser))
+            .then(res => {
+                expect(res.status).toBe(200)
+                let { status, message, data } = res.body
+                expect(status).toBe(true)
+                expect(message).toBe("You've successfully logged in")
+                expect(data).toHaveProperty('username')
+                expect(data).toHaveProperty('token')
+                done()
+            })
+    })
+
+    it('should log user in because user is not registered', async done => {
+        let invalidUser = {
+            username: 'invalid',
+            password: 'invalid'
+        }
+        request
+            .post('/api/v1/auth')
+            .set('Content-Type', 'application/json')
+            .send(JSON.stringify(invalidUser))
+            .then(res => {
+                expect(res.status).toBe(422)
+                let { status, message, data, errors } = res.body
+                expect(status).toBe(false)
+                expect(message).toBe("Login failed")
+                expect(data).toBe(null)
+                expect(errors).toBe('User not found!')
+                done()
+            })
+    })
+
+    it('should not log user in', async done => {
+        let userSample = {
+            ...staticUser,
+            password: ""
+        }
+        request
+            .post('/api/v1/auth')
+            .set('Content-Type', 'application/json')
+            .send(JSON.stringify(userSample))
+            .then(res => {
+                expect(res.status).toBe(422)
+                let { status, message, data, errors } = res.body
+                expect(status).toBe(false)
+                expect(message).toBe('Login failed')
+                expect(data).toBe(null)
+                expect(errors).toBe('Incorrect Password!')
+                done()
+            })
+    })
+})
+
+describe('GET /api/v1/users', () => {
+    it('should get current user information', async done => {
+        request
+            .post('/api/v1/auth')
+            .set('Content-Type', 'application/json')
+            .send(JSON.stringify(staticUser))
+            .then(res => {
+                let token = res.body.data.token
+                request
+                    .get('/api/v1/users')
+                    .set('Authorization', 'Bearer ' + token)
+                    .then(res => {
+                        expect(res.status).toBe(200)
+                        let { status, message, data } = res.body
+                        expect(status).toBe(true)
+                        expect(message).toBe('Current user information: ')
+                        expect(data).toHaveProperty('username')
+                        expect(data).toHaveProperty('email')
+                        done()
+                    })
+            })
+    })
+
+    it('should not get current user information due to invalid token', async done => {
+        request
+            .get('/api/v1/users')
+            .set('Authorization', "")
+            .then(res => {
+                expect(res.status).toBe(401)
+                let { status, message, data, errors } = res.body
+                expect(status).toBe(false)
+                expect(message).toBe('Invalid Token')
+                expect(data).toBe(null)
+                expect(errors).toHaveProperty('name', 'JsonWebTokenError')
+                done()
+            })
+    })
+})

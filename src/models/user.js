@@ -56,6 +56,51 @@ class User extends mongoose.model('User', userSchema) {
                 })
         })
     }
+
+    static login(bodyParams) {
+        return new Promise((resolve, reject) => {
+            let params = {
+                username: bodyParams.username,
+                password: bodyParams.password
+            }
+
+            this.findOne({ username: params.username })
+                .then(data => {
+                    if (!data) return reject("User not found!")
+
+                    if (bcrypt.compareSync(params.password, data.password)) {
+                        let token = jwt.sign({ _id: data._id, role: data.role }, process.env.JWT_SIGNATURE_KEY)
+
+                        resolve({
+                            _id: data._id,
+                            username: data.username,
+                            token: token
+                        })
+                    }
+
+                    else {
+                        return reject("Incorrect Password!")
+                    }
+                })
+        })
+    }
+
+    static me(user) {
+        return new Promise((resolve) => {
+            this.findById(user)
+                .select(['username', 'email', 'image', 'bio'])
+                .then(data => {
+                    resolve(data)
+                })
+        })
+    }
+    
+    static edit(user, imageParams) {
+        return new Promise((resolve, reject) => {
+    })
 }
+}
+
+
 
 module.exports = User

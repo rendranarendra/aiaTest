@@ -1,11 +1,13 @@
-exports.serverError = (err, req, res) => {
+/* istanbul ignore next */
+exports.serverError = (res, err, req) => {
 	res.status(500).json({
 		status: false,
 		errors: err
 	})
 }
 
-exports.notFound = async (err, req, res) => {	
+/* istanbul ignore next */
+exports.notFound = async (res, err, req) => {
 	res.status(404).json({
 		status: false,
 		errors: err

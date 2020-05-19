@@ -8,7 +8,7 @@ dotenv.config()
 
 //database
 require('./database.js')
-// console.log(process.env.DB_KONEK)
+
 //express middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(cors())
 app.use(morgan('tiny'))
 
-//router and exceptionHandler
+//router
 const router = require('./router')
 app.use('/api/v1', router)
 
@@ -28,12 +28,12 @@ app.get('/', (req, res) => {
     })
 })
 
-const {
-    notFound,
-    serverError
-} = require('./exceptionHandler.js')
+// const {
+//     notFound,
+//     serverError
+// } = require('./exceptionHandler.js')
 
-app.use(serverError)
-app.use(notFound)
+// app.use(serverError)
+// app.use(notFound)
 
 module.exports = app
