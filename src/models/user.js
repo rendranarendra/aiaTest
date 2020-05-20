@@ -97,7 +97,9 @@ class User extends mongoose.model('User', userSchema) {
     
     static edit(user, imageParams) {
         return new Promise((resolve, reject) => {
+            this.findOneAndUpdate()
     })
+
 }
 }
 
