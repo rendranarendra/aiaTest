@@ -24,5 +24,11 @@
           "no-async-promise-executor": [
             "warn"  
           ]
-    }
+        },
+          "ignorePatterns": [
+            "exceptionHandler.js",
+            "jest.config.js",
+            "user.spec.js",
+            "image.spec.js"
+          ]
 }
